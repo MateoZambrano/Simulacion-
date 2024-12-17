@@ -39,7 +39,7 @@ def main():
             diferencias_finitas()
         elif choice == "4":
             limpiar_consola()
-            Sistema_No_lineales()
+            ecuacion_no_lineal()
         elif choice == "5":
             limpiar_consola()
             Ecuaciones_lineales()

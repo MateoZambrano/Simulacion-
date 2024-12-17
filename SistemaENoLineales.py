@@ -1,65 +1,95 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy import optimize
 
-# Función que representa el sistema de ecuaciones no lineales
-def system_of_equations(vars, eqs):
-    x, y = vars
-    res = []
-    for eq in eqs:
-        res.append(eval(eq))
-    return res
-def Sistema_No_lineales():
-    # Solicitar al usuario que ingrese las ecuaciones
-    print("Ingresa el sistema de ecuaciones de la forma f(x, y) = 0:")
-    n = int(input("¿Cuántas ecuaciones tiene el sistema? (Por ejemplo, 2): "))
-    equations = []
-    for i in range(n):
-        eq = input(f"Ecuación {i+1} (por ejemplo, x**2 + y**2 - 4): ")
-        equations.append(eq)
+# Método de bisección
+def bisection_method(func, a, b, tol=1e-5, max_iter=100):
+    """
+    Método de bisección para encontrar la raíz de una función no lineal en [a, b].
 
-    # Establecer una suposición inicial
-    initial_guess = [1, 1]  # Puedes cambiar este valor si es necesario
+    Args:
+        func (function): La función a resolver.
+        a (float): Extremo izquierdo del intervalo.
+        b (float): Extremo derecho del intervalo.
+        tol (float): Tolerancia para el criterio de parada.
+        max_iter (int): Número máximo de iteraciones.
 
-    # Resolver el sistema de ecuaciones
-    solution = optimize.fsolve(system_of_equations, initial_guess, args=(equations))
+    Returns:
+        (float, list): Aproximación de la raíz y lista de puntos intermedios [(a, b, c)].
+    """
+    if func(a) * func(b) >= 0:
+        raise ValueError("La función debe cambiar de signo en el intervalo [a, b].")
 
-    # Mostrar la solución
-    print(f"La solución es: x = {solution[0]}, y = {solution[1]}")
+    iter_count = 0
+    iter_points = []  # Almacena los puntos (a, b, c) y las aproximaciones
 
-    # Graficar las ecuaciones y la solución
-    # Definir el rango de valores para x y y
-    x_vals = np.linspace(-3, 3, 400)
-    y_vals = np.linspace(-3, 3, 400)
+    while (b - a) / 2 > tol and iter_count < max_iter:
+        c = (a + b) / 2  # Punto medio
+        iter_points.append((a, b, c))  # Guarda los puntos para graficar
 
-    # Crear una malla de puntos para evaluar las ecuaciones
-    X, Y = np.meshgrid(x_vals, y_vals)
+        print(f"Iteración {iter_count + 1}: a = {a:.5f}, b = {b:.5f}, c = {c:.5f}, f(c) = {func(c):.5f}")
 
-    # Graficar cada ecuación
-    for eq in equations:
-        Z = eval(eq.replace("x", "X").replace("y", "Y"))
-        plt.contour(X, Y, Z, levels=[0], label=eq)
+        if func(c) == 0:  # Encontramos la raíz exacta
+            return c, iter_points
+        elif func(a) * func(c) < 0:  # La raíz está en [a, c]
+            b = c
+        else:  # La raíz está en [c, b]
+            a = c
+        iter_count += 1
 
-    # Graficar la solución
-    plt.plot(solution[0], solution[1], 'go', label=f"Solución: ({solution[0]:.2f}, {solution[1]:.2f})")
+    return (a + b) / 2, iter_points  # Aproximación de la raíz y puntos intermedios
 
-    # Dibujar el eje x (horizontal) en y=0
-    plt.axhline(0, color="black", linewidth=1, linestyle="-")  # Eje x
+# Función principal
+def ecuacion_no_lineal():
+    print("Calculadora de raíces de ecuaciones no lineales usando el Método de Bisección.")
     
-    # Dibujar el eje y (vertical) en x=0
-    plt.axvline(0, color="black", linewidth=1, linestyle="-")  # Eje y
+    # Solicitar la ecuación al usuario
+    eq = input("Ingresa la ecuación en términos de x (por ejemplo, x**3 - 4*x - 9): ")
+    func = lambda x: eval(eq)
 
-    # Ajustar límites de los ejes para que sean visibles
-    plt.xlim(-3, 3)
-    plt.ylim(-3, 3)
+    # Solicitar el intervalo [a, b]
+    a = float(input("Ingresa el extremo izquierdo del intervalo (a): "))
+    b = float(input("Ingresa el extremo derecho del intervalo (b): "))
 
-    # Etiquetas y título
+    # Solicitar la tolerancia y el número máximo de iteraciones
+    tol = float(input("Ingresa la tolerancia deseada (por ejemplo, 1e-5): "))
+    max_iter = int(input("Ingresa el número máximo de iteraciones permitido: "))
+
+    # Verificar que la función cambia de signo
+    if func(a) * func(b) >= 0:
+        print("Error: La función no cambia de signo en el intervalo dado.")
+        return
+
+    # Resolver con el método de bisección
+    root, iter_points = bisection_method(func, a, b, tol=tol, max_iter=max_iter)
+    print(f"\nLa raíz aproximada de la ecuación es: x = {root:.5f}")
+
+    # Graficar la función y las iteraciones
+    x_vals = np.linspace(a - 1, b + 1, 400)
+    y_vals = [func(x) for x in x_vals]
+
+    plt.plot(x_vals, y_vals, label=f"f(x) = {eq}")
+    plt.axhline(0, color='black', linewidth=0.5)  # Eje x
+
+    # Graficar los puntos de las iteraciones
+    for i, (a_iter, b_iter, c_iter) in enumerate(iter_points):
+        plt.scatter(c_iter, func(c_iter), color='blue', alpha=0.7)
+        plt.text(c_iter, func(c_iter), f"{i+1}: {c_iter:.4f}", fontsize=8, ha='right')
+
+    # Agregar el eje x (línea horizontal en y = 0)
+    plt.axhline(0, color="black", linewidth=2, linestyle="-")
+
+    # Agregar el eje y (línea vertical en x = 0)
+    plt.axvline(0, color="black", linewidth=2, linestyle="-")
+
+    # Graficar la raíz aproximada
+    plt.scatter(root, func(root), color='red', label=f"Raíz aproximada: x = {root:.5f}")
     plt.xlabel("x")
-    plt.ylabel("y")
-    plt.title("Sistema de Ecuaciones No Lineales")
+    plt.ylabel("f(x)")
+    plt.title("Método de Bisección - Solución de Ecuaciones No Lineales")
     plt.legend()
     plt.grid(True)
     plt.show()
 
 if __name__ == "__main__":
-    Sistema_No_lineales()
+    ecuacion_no_lineal()
+
