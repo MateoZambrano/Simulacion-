@@ -43,6 +43,16 @@ def Sistema_No_lineales():
     # Graficar la solución
     plt.plot(solution[0], solution[1], 'go', label=f"Solución: ({solution[0]:.2f}, {solution[1]:.2f})")
 
+    # Dibujar el eje x (horizontal) en y=0
+    plt.axhline(0, color="black", linewidth=1, linestyle="-")  # Eje x
+    
+    # Dibujar el eje y (vertical) en x=0
+    plt.axvline(0, color="black", linewidth=1, linestyle="-")  # Eje y
+
+    # Ajustar límites de los ejes para que sean visibles
+    plt.xlim(-3, 3)
+    plt.ylim(-3, 3)
+
     # Etiquetas y título
     plt.xlabel("x")
     plt.ylabel("y")

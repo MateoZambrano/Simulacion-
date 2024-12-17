@@ -2,6 +2,7 @@ from Taylor import Taylor_series
 from Newton import MetodoNewton
 from DiferenciasFinitas import diferencias_finitas
 from SistemaENoLineales import *
+from EcuacionesLineales import *
 import os
 
 def limpiar_consola():
@@ -20,7 +21,8 @@ def main():
         print("2. Método de Newton")
         print("3. Diferencias Finitas")
         print("4. Sistemas de ecuaciones no lineales")
-        print("5. Salir")
+        print("5. Ecuaciones Lineales")
+        print("6. Salir")
         
         choice = input("Ingrese el número de la opción que desea: ")
         
@@ -39,6 +41,9 @@ def main():
             limpiar_consola()
             Sistema_No_lineales()
         elif choice == "5":
+            limpiar_consola()
+            Ecuaciones_lineales()
+        elif choice == "6":
             print("Saliendo del programa.")
             break
         else:
